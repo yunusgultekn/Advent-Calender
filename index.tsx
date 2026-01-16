@@ -142,7 +142,9 @@ const AccessGate: React.FC<{ onUnlock: () => void }> = ({ onUnlock }) => {
       setTimeout(() => setIsShaking(false), 500);
     }
   };
-
+setTimeout(() => {
+  window.location.reload();
+}, 10*60*1000);
   const days = Array.from({ length: 31 }, (_, i) => i + 1);
 
   return (
