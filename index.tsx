@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import ReactDOM from 'react-dom/client';
-import { Heart, Sparkles, X, Lock, ChevronRight, ChevronDown, AlertCircle, Calendar as CalendarIcon, Key } from 'lucide-react';
+import { Heart, Sparkles, X, Lock, ChevronRight, ChevronDown, AlertCircle, Calendar as CalendarIcon, Key, Timer } from 'lucide-react';
 
 // --- TYPES ---
 interface Gift {
@@ -108,21 +108,23 @@ const AccessGate: React.FC<{ onUnlock: () => void }> = ({ onUnlock }) => {
   const [error, setError] = useState(false);
   const [isShaking, setIsShaking] = useState(false);
   
-  // Use a ref to store the audio object to avoid multiple instances and memory leaks
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     setShuffledChallenges([...CHALLENGES].sort(() => Math.random() - 0.5));
-    // Pre-initialize the audio object
     audioRef.current = new Audio('bok.ogg');
+
+    const reloadTimer = setTimeout(() => {
+      window.location.reload();
+    }, 10 * 60 * 1000);
+    
+    return () => clearTimeout(reloadTimer);
   }, []);
 
   const playBokSound = () => {
     if (audioRef.current) {
-      // Reset sound to start and play
       audioRef.current.currentTime = 0;
       audioRef.current.play().catch(err => {
-        // Fallback for missing file or browser block
         console.warn("Ses çalınamadı. 'bok.ogg' dosyası mevcut değil veya tarayıcı engelledi.", err);
       });
     }
@@ -142,9 +144,7 @@ const AccessGate: React.FC<{ onUnlock: () => void }> = ({ onUnlock }) => {
       setTimeout(() => setIsShaking(false), 500);
     }
   };
-setTimeout(() => {
-  window.location.reload();
-}, 10*60*1000);
+
   const days = Array.from({ length: 31 }, (_, i) => i + 1);
 
   return (
@@ -278,10 +278,30 @@ const App = () => {
     return saved ? JSON.parse(saved) : [];
   });
   const [selectedGift, setSelectedGift] = useState<Gift | null>(null);
+  
+  // New States for Countdown
+  const [isCountingDown, setIsCountingDown] = useState(false);
+  const [countdownValue, setCountdownValue] = useState(10);
+  const [pendingGift, setPendingGift] = useState<Gift | null>(null);
 
   useEffect(() => {
     localStorage.setItem('advent_opened_doors', JSON.stringify(openedDoors));
   }, [openedDoors]);
+
+  // Countdown Logic
+  useEffect(() => {
+    let timer: number;
+    if (isCountingDown && countdownValue > 0) {
+      timer = window.setInterval(() => {
+        setCountdownValue(prev => prev - 1);
+      }, 1000);
+    } else if (isCountingDown && countdownValue === 0) {
+      setIsCountingDown(false);
+      setSelectedGift(pendingGift);
+      setPendingGift(null);
+    }
+    return () => clearInterval(timer);
+  }, [isCountingDown, countdownValue, pendingGift]);
 
   const handleUnlock = () => {
     setIsUnlocked(true);
@@ -289,11 +309,17 @@ const App = () => {
   };
 
   const handleOpenDoor = (day: number) => {
+    const gift = ADVENT_GIFTS.find(g => g.day === day);
+    if (!gift) return;
+
     if (!openedDoors.includes(day)) {
       setOpenedDoors([...openedDoors, day]);
     }
-    const gift = ADVENT_GIFTS.find(g => g.day === day);
-    if (gift) setSelectedGift(gift);
+
+    // Start 10 seconds countdown instead of opening immediately
+    setPendingGift(gift);
+    setCountdownValue(10);
+    setIsCountingDown(true);
   };
 
   if (!isUnlocked) return <AccessGate onUnlock={handleUnlock} />;
@@ -342,6 +368,35 @@ const App = () => {
         </div>
       </footer>
 
+      {/* Countdown Overlay */}
+      {isCountingDown && (
+        <div className="fixed inset-0 z-[70] flex flex-col items-center justify-center p-6 bg-slate-950/98 backdrop-blur-3xl transition-all duration-500 animate-in fade-in">
+          <div className="relative">
+            <div className="w-64 h-64 rounded-full border-8 border-rose-500/20 flex items-center justify-center">
+              <span className="text-9xl font-black text-rose-500 animate-pulse font-romantic">
+                {countdownValue}
+              </span>
+            </div>
+            <div className="absolute inset-0 animate-spin-slow">
+              <Heart className="text-rose-500/30 absolute top-0 left-1/2 -translate-x-1/2" size={32} />
+            </div>
+          </div>
+          <p className="mt-12 text-2xl font-romantic text-white italic animate-bounce">
+            {countdownValue > 7 ? "Hazır mısın sevgilim? ❤️" : 
+             countdownValue > 4 ? "Geliyorrrr... ✨" : 
+             countdownValue > 0 ? "Heeeyecanlı mısın? 😍" : "Açılıyor! 🎁"}
+          </p>
+          <div className="mt-4 flex gap-2">
+            {[...Array(10)].map((_, i) => (
+              <div 
+                key={i} 
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${10-i <= countdownValue ? 'bg-slate-700' : 'bg-rose-500 scale-125'}`}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
       {selectedGift && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-6 bg-slate-950/95 backdrop-blur-xl transition-all duration-500">
           <div className="bg-white rounded-[3rem] p-10 max-w-sm w-full text-center shadow-[0_50px_100px_-20px_rgba(244,63,94,0.5)] relative overflow-hidden animate-in zoom-in duration-300">
@@ -380,6 +435,16 @@ const App = () => {
           </div>
         </div>
       </div>
+      
+      <style>{`
+        @keyframes spin-slow {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .animate-spin-slow {
+          animation: spin-slow 8s linear infinite;
+        }
+      `}</style>
     </div>
   );
 };
