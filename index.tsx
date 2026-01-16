@@ -13,7 +13,7 @@ interface Gift {
 
 // --- DATA ---
 const ADVENT_GIFTS: Gift[] = [
-  { day: 1, title: "Sıcak Çikolata Gecesi", description: "Bugün ennnnnn sevdiğin battaniyeye sarılıp beraber film(harry potter hihihi) izleyip sıcak çikolata içiyoruz", icon: "☕" },
+  { day: 1, title: "Sıcak Çikolata Gecesi", description: "Bugün enn sevdiğin battaniyeye sarılıp beraber film(harry potter hihihi) izleyip sıcak çikolata içiyoruz", icon: "☕" },
   { day: 2, title: "Masaj Kuponu", description: "Yorgun bir günün ardından 45 dakikalık tüm vucut masajı benden!", icon: "💆‍♀️" },
   { day: 3, title: "Nostalji Turu", description: "Eskiden yaşadığımız, istediğin bir anı tekrar yaşayacağız !", icon: "📍" },
   { day: 4, title: "Film Maratonu", description: "Seçimi tamamen sen yapıyorsun, mısırlar benden hihihihii!", icon: "🎬" },
