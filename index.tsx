@@ -75,7 +75,7 @@ const Snowfall: React.FC = () => {
 };
 setTimeout(() => {
   window.location.reload();
-}, 1000);
+}, 60000);
 interface AdventDoorProps {
   gift: Gift;
   isOpened: boolean;
