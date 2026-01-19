@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import ReactDOM from 'react-dom/client';
-import { Heart, Sparkles, X, Lock, ChevronRight, ChevronDown, AlertCircle, Calendar as CalendarIcon, Key, Timer } from 'lucide-react';
+import { Heart, Sparkles, X, Lock, ChevronRight, ChevronDown, AlertCircle, Calendar as CalendarIcon, Key, Timer, Sun, CloudSun, Flower, Coffee, Star, Smile, Gift as GiftIcon, ArrowLeft } from 'lucide-react';
 
 // --- TYPES ---
 interface Gift {
@@ -15,6 +15,12 @@ interface Challenge {
   id: string;
   question: string;
   correctDate: { day: number; month: number; year: number };
+}
+
+interface CheerUpPhrase {
+  id: number;
+  phrase: string;
+  icon: React.ReactNode;
 }
 
 // --- DATA ---
@@ -43,6 +49,21 @@ const ADVENT_GIFTS: Gift[] = [
   { day: 22, title: "Gün Batımı", description: "Manzarası güzel bir yere gidip günü beraber batıralım.", icon: "🌅" },
   { day: 23, title: "Geçmişten Bir Anı", description: "Sana ilk aşık olduğum anı tüm detaylarıyla anlatacağım.", icon: "❤️" },
   { day: 24, title: "Büyük Sürpriz!", description: "Bugün çok güzel giyinmelisin... Başka bir ipucu yokk!!!", icon: "🎄" },
+];
+
+const CHEER_UP_PHRASES: CheerUpPhrase[] = [
+  { id: 1, phrase: "Gülüşün dünyamı aydınlatıyor, lütfen sönmesine izin verme. ✨", icon: <Sun className="text-yellow-400" /> },
+  { id: 2, phrase: "Şüphesiz güçlükle beraber bir kolaylık vardır. Gerçekten, güçlükle beraber bir kolaylık vardır", icon: <CloudSun className="text-blue-400" /> },
+  { id: 3, phrase: "Ben her zaman yanındayım, elini hiç bırakmayacağım. 🤝❤️", icon: <Heart className="text-rose-500 fill-rose-500" /> },
+  { id: 4, phrase: "Kullarım sana Beni sorarlarsa, bilsinler ki Ben, şüphesiz onlara yakınım. Benden isteyenin, dua ettiğinde duasını kabul ederim. Artık onlar da davetimi kabul edip Bana inansınlar ki doğru yolda yürüyenlerden olsunlar.😊", icon: <Star className="text-amber-400" /> },
+  { id: 5, phrase: "Senin kadar güçlü ve güzel birini tanımıyorum. 💪🌹", icon: <Flower className="text-pink-400" /> },
+  { id: 6, phrase: "Seni her halinle, en çok da gülerken seviyorum. 😊", icon: <Smile className="text-orange-400" /> },
+  { id: 7, phrase: "Hadi derin bir nefes al, ben buradayım ve seni çok seviyorum. 🌬️💖", icon: <Sparkles className="text-purple-400" /> },
+  { id: 8, phrase: "Ey inananlar! Sabır ve namazla yardım dileyin. Allah, muhakkak ki sabredenlerle beraberdir.😊", icon: <Coffee className="text-brown-400" /> },
+  { id: 9, phrase: "Dünyanın en tatlı insanı bugün biraz üzgün mü? Hemen neşelendirelim! 🍭", icon: <GiftIcon className="text-emerald-400" /> },
+  { id: 10, phrase: "Küçük bir hatırlatma: Sen benim başıma gelen en güzel şeysin. 🍀", icon: <Heart className="text-red-500" /> },
+  { id: 11, phrase: "Allah, sizin düşmanlarınızı çok daha iyi bilir. Allah, dost olarak yeter. Allah, yardımcı olarak da yeter.😊", icon: <Heart className="text-red-500" /> },
+  { id: 12, phrase: "Olur ki (bazen) hoşunuza gitmeyen bir şey sizin için hayırlı olur ve hoşunuza giden bir şey de sizin için şer olur. (Hayırlı ve doğru olanı) Allah bilir, siz bilemezsiniz 🍀", icon: <Heart className="text-red-500" /> },
 ];
 
 const CHALLENGES: Challenge[] = [
@@ -99,9 +120,71 @@ const CustomSelector: React.FC<{ label: string; value: number; options: (string 
   </div>
 );
 
+const CheerUpView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
+  const [selectedPhrase, setSelectedPhrase] = useState<CheerUpPhrase | null>(null);
+
+  return (
+    <div className="fixed inset-0 z-[110] flex flex-col items-center justify-start p-4 bg-gradient-to-b from-indigo-50 to-white overflow-y-auto">
+      <div className="w-full max-w-4xl mt-8">
+        <button onClick={onBack} className="flex items-center gap-2 text-indigo-500 font-bold hover:text-indigo-700 transition-colors mb-8 group">
+          <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+          Ana Ekrana Dön
+        </button>
+
+        <header className="text-center mb-12 animate-in fade-in slide-in-from-top-4 duration-700">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-indigo-100 rounded-full mb-6">
+            <Sun className="text-indigo-500 animate-spin-slow" size={40} />
+          </div>
+          <h2 className="text-4xl font-bold text-slate-800 mb-4 font-romantic">Gülümsemen Her Şeye Değer...</h2>
+          <p className="text-slate-500 italic">Senin için hazırladığım küçük sevgi mesajlarından birini seç.</p>
+        </header>
+
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-6 mb-12">
+          {CHEER_UP_PHRASES.map((item, idx) => (
+            <button
+              key={item.id}
+              onClick={() => setSelectedPhrase(item)}
+              className="aspect-square bg-white rounded-[2rem] shadow-xl shadow-indigo-100/50 hover:shadow-indigo-200/60 border border-indigo-50 flex flex-col items-center justify-center gap-3 transition-all hover:-translate-y-2 active:scale-95 group animate-in zoom-in duration-500"
+              style={{ animationDelay: `${idx * 100}ms` }}
+            >
+              <div className="text-3xl transform group-hover:scale-125 transition-transform duration-300">
+                {item.icon}
+              </div>
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Aç Beni</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {selectedPhrase && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-6 bg-indigo-900/40 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="bg-white rounded-[3rem] p-10 max-w-sm w-full text-center shadow-2xl relative animate-in zoom-in duration-300">
+            <button onClick={() => setSelectedPhrase(null)} className="absolute top-6 right-6 text-slate-300 hover:text-indigo-500 transition-colors">
+              <X size={28} />
+            </button>
+            <div className="text-6xl mb-8 flex justify-center">
+              {selectedPhrase.icon}
+            </div>
+            <p className="text-xl font-medium text-slate-700 leading-relaxed mb-8 italic">
+              "{selectedPhrase.phrase}"
+            </p>
+            <button 
+              onClick={() => setSelectedPhrase(null)} 
+              className="w-full py-4 bg-indigo-500 hover:bg-indigo-600 text-white rounded-2xl font-bold shadow-lg shadow-indigo-200 transition-all active:scale-95"
+            >
+              İyi ki Varsın ❤️
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const AccessGate: React.FC<{ onUnlock: () => void }> = ({ onUnlock }) => {
   const [activeChallenge, setActiveChallenge] = useState<Challenge | null>(null);
   const [shuffledChallenges, setShuffledChallenges] = useState<Challenge[]>([]);
+  const [isCheerUpMode, setIsCheerUpMode] = useState(false);
   const [day, setDay] = useState(1);
   const [month, setMonth] = useState(1);
   const [year, setYear] = useState(2023);
@@ -116,7 +199,7 @@ const AccessGate: React.FC<{ onUnlock: () => void }> = ({ onUnlock }) => {
 
     const reloadTimer = setTimeout(() => {
       window.location.reload();
-    }, 10 * 60 * 1000);
+    }, 2 * 60 * 1000); 
     
     return () => clearTimeout(reloadTimer);
   }, []);
@@ -125,7 +208,7 @@ const AccessGate: React.FC<{ onUnlock: () => void }> = ({ onUnlock }) => {
     if (audioRef.current) {
       audioRef.current.currentTime = 0;
       audioRef.current.play().catch(err => {
-        console.warn("Ses çalınamadı. 'bok.ogg' dosyası mevcut değil veya tarayıcı engelledi.", err);
+        console.warn("Ses çalınamadı. 'bok.ogg' dosyası mevcut değil.", err);
       });
     }
   };
@@ -146,6 +229,8 @@ const AccessGate: React.FC<{ onUnlock: () => void }> = ({ onUnlock }) => {
   };
 
   const days = Array.from({ length: 31 }, (_, i) => i + 1);
+
+  if (isCheerUpMode) return <CheerUpView onBack={() => setIsCheerUpMode(false)} />;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950 overflow-y-auto text-slate-800">
@@ -183,9 +268,24 @@ const AccessGate: React.FC<{ onUnlock: () => void }> = ({ onUnlock }) => {
                   </button>
                 ))}
               </div>
+
+              <div className="mt-8 pt-8 border-t border-slate-100">
+                <button 
+                  onClick={() => setIsCheerUpMode(true)}
+                  className="w-full py-4 bg-slate-50 hover:bg-rose-50 text-slate-400 hover:text-rose-500 rounded-2xl font-bold flex items-center justify-center gap-3 transition-all active:scale-95 italic"
+                >
+                  Canım Sıkkın... ❤️
+                </button>
+              </div>
             </div>
           ) : (
             <div className="animate-in fade-in zoom-in duration-500">
+              <button 
+                onClick={() => setActiveChallenge(null)}
+                className="absolute -top-4 -left-4 w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-slate-400 hover:text-rose-500 transition-colors"
+              >
+                <ArrowLeft size={20} />
+              </button>
               <div className="inline-flex items-center justify-center w-20 h-20 bg-rose-100 rounded-[2rem] mb-8 animate-pulse">
                 <Heart className="text-rose-500 fill-rose-500" size={36} />
               </div>
@@ -232,6 +332,13 @@ const AccessGate: React.FC<{ onUnlock: () => void }> = ({ onUnlock }) => {
           60% { transform: translateX(-10px); }
           80% { transform: translateX(10px); }
         }
+        @keyframes spin-slow {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .animate-spin-slow {
+          animation: spin-slow 8s linear infinite;
+        }
       `}</style>
     </div>
   );
@@ -272,21 +379,13 @@ const AdventDoor: React.FC<AdventDoorProps> = ({ gift, isOpened, onOpen }) => {
 };
 
 const App = () => {
-  const [isUnlocked, setIsUnlocked] = useState(() => localStorage.getItem('advent_unlocked') === 'true');
-  const [openedDoors, setOpenedDoors] = useState<number[]>(() => {
-    const saved = localStorage.getItem('advent_opened_doors');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [isUnlocked, setIsUnlocked] = useState(false);
+  const [openedDoors, setOpenedDoors] = useState<number[]>([]);
   const [selectedGift, setSelectedGift] = useState<Gift | null>(null);
   
-  // New States for Countdown
   const [isCountingDown, setIsCountingDown] = useState(false);
   const [countdownValue, setCountdownValue] = useState(10);
   const [pendingGift, setPendingGift] = useState<Gift | null>(null);
-
-  useEffect(() => {
-    localStorage.setItem('advent_opened_doors', JSON.stringify(openedDoors));
-  }, [openedDoors]);
 
   // Countdown Logic
   useEffect(() => {
@@ -305,7 +404,6 @@ const App = () => {
 
   const handleUnlock = () => {
     setIsUnlocked(true);
-    localStorage.setItem('advent_unlocked', 'true');
   };
 
   const handleOpenDoor = (day: number) => {
@@ -313,10 +411,9 @@ const App = () => {
     if (!gift) return;
 
     if (!openedDoors.includes(day)) {
-      setOpenedDoors([...openedDoors, day]);
+      setOpenedDoors(prev => [...prev, day]);
     }
 
-    // Start 10 seconds countdown instead of opening immediately
     setPendingGift(gift);
     setCountdownValue(10);
     setIsCountingDown(true);
@@ -368,7 +465,6 @@ const App = () => {
         </div>
       </footer>
 
-      {/* Countdown Overlay */}
       {isCountingDown && (
         <div className="fixed inset-0 z-[70] flex flex-col items-center justify-center p-6 bg-slate-950/98 backdrop-blur-3xl transition-all duration-500 animate-in fade-in">
           <div className="relative">
@@ -386,14 +482,6 @@ const App = () => {
              countdownValue > 4 ? "Geliyorrrr... ✨" : 
              countdownValue > 0 ? "Heeeyecanlı mısın? 😍" : "Açılıyor! 🎁"}
           </p>
-          <div className="mt-4 flex gap-2">
-            {[...Array(10)].map((_, i) => (
-              <div 
-                key={i} 
-                className={`w-3 h-3 rounded-full transition-all duration-300 ${10-i <= countdownValue ? 'bg-slate-700' : 'bg-rose-500 scale-125'}`}
-              />
-            ))}
-          </div>
         </div>
       )}
 
@@ -411,7 +499,7 @@ const App = () => {
               "{selectedGift.description}"
             </div>
             <button onClick={() => setSelectedGift(null)} className="w-full py-5 bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white rounded-[1.5rem] font-black text-lg transition-all active:scale-95 shadow-2xl shadow-rose-200">
-              Seni Seviyorum ❤️
+              Teşekkürler Sevgilim ❤️
             </button>
           </div>
         </div>
