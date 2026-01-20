@@ -387,6 +387,12 @@ const App = () => {
   const [countdownValue, setCountdownValue] = useState(10);
   const [pendingGift, setPendingGift] = useState<Gift | null>(null);
 
+  // TAKVİM MANTIĞI REVERT: 
+  // Eski basit mantığa geri dönüyoruz. Bugünün tarihinden 14 çıkarıyoruz.
+  const currentDayOfMonth = new Date().getDate();
+  const todayBox = currentDayOfMonth - 14;
+  const tomorrowBox = todayBox + 1;
+
   // Countdown Logic
   useEffect(() => {
     let timer: number;
@@ -426,12 +432,17 @@ const App = () => {
       <Snowfall />
 
       <div className="sticky top-0 z-50 w-full bg-rose-600/90 backdrop-blur-lg text-white py-4 px-6 text-center shadow-2xl border-b border-rose-400/30">
-        <div className="max-w-4xl mx-auto flex items-center justify-center gap-4">
-          <AlertCircle className="shrink-0 animate-pulse text-rose-200" size={20} />
-          <p className="text-sm md:text-base font-bold tracking-tight">
-            Senden sakladığım için özür dilerim, telafi etmek için elimden geleni yapacağım.
+        <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-center gap-2 md:gap-8">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="shrink-0 animate-pulse text-rose-200" size={18} />
+            <p className="text-xs md:text-sm font-bold tracking-tight">
+              Bugün <span className="text-yellow-300 text-lg mx-1">{todayBox}.</span> kutuyu, yarın <span className="text-yellow-300 text-lg mx-1">{tomorrowBox}.</span> kutuyu açmalısın bebeğim ❤️
+            </p>
+          </div>
+          <div className="hidden md:block w-px h-6 bg-rose-400/30"></div>
+          <p className="text-[10px] md:text-xs font-medium italic text-rose-100/80">
+            Senden sakladığım için özür dilerim, telafi edeceğim sevgilim.
           </p>
-          <AlertCircle className="shrink-0 animate-pulse text-rose-200" size={20} />
         </div>
       </div>
 
